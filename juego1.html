@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memorama Material Design</title>
+    <style>
+        /* Estilos generales para el cuerpo de la página */
+        body {
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f0f0f0;
+        }
+
+        /* Contenedor principal de la aplicación (400px de ancho) */
+        .contenedor {
+            display: grid;
+            max-width: 400px;
+            height: 600px;
+            background-color: #E3F2FD;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: auto 1fr auto;
+            margin: auto;
+            gap: 0;
+            border-radius: 8px;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        /* Estilos base para header, main y footer */
+        header.uno, main.dos, footer.tres {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 8px;
+            box-sizing: border-box;
+            color: white;
+        }
+
+        /* Estilos específicos del encabezado */
+        header.uno {
+            background-color: #2196F3;
+            grid-column: 1 / 5;
+            grid-row: 1 / 2;
+            font-size: 1.2em;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* Estilos específicos de la sección principal (main) */
+        main.dos {
+            background-color: #BBDEFB;
+            grid-column: 1 / 5;
+            grid-row: 2 / 3;
+            padding: 8px;
+            overflow-y: auto;
+        }
+
+        /* Estilos específicos del pie de página */
+        footer.tres {
+            background-color: #1976D2;
+            grid-column: 1 / 5;
+            grid-row: 3 / 4;
+            font-size: 0.8em;
+            color: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 -2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* Estilos para el tablero del memorama */
+        .memory-game {
+            width: 100%;
+            height: 100%;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 8px;
+            padding: 0;
+            box-sizing: border-box;
+            perspective: 1000px; /* Asegúrate que este valor sea un número suficiente */
+        }
+
+        /* Estilos para cada carta individual */
+        .game-card {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            /* Fuerza la aceleración por hardware del GPU para renderizado 3D */
+            transform: translateZ(0); /* <-- AGREGADO/MODIFICADO */
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Efecto al pasar el ratón por encima de la carta */
+        .game-card:hover:not(.flip):not(.matched) {
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            transform: translateY(-2px) translateZ(0); /* <-- AGREGADO/MODIFICADO */
+        }
+
+        /* Estilos para las caras frontal y trasera de la carta */
+        .front-face, .back-face {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            padding: 8px;
+            box-sizing: border-box;
+            backface-visibility: hidden; /* ¡CLAVE! Oculta la cara cuando está "bocabajo" */
+            object-fit: contain;
+            border-radius: 8px;
+            /* Fuerza la aceleración por hardware para estas capas */
+            transform: translateZ(0); /* <-- AGREGADO/MODIFICADO */
+        }
+
+        .front-face {
+            transform: rotateY(180deg) translateZ(0); /* <-- AGREGADO/MODIFICADO */
+        }
+
+        .back-face {
+            background-color: #6200EE;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Clase que se añade con JavaScript para voltear la carta */
+        .game-card.flip {
+            transform: rotateY(180deg) translateZ(0); /* <-- AGREGADO/MODIFICADO */
+        }
+
+        /* Clase para las cartas que ya se han emparejado */
+        .game-card.matched {
+            cursor: default;
+            opacity: 0.7;
+            box-shadow: none;
+        }
+
+        /* Estilo para el botón de reiniciar */
+        .restart-button {
+            background-color: #FF5722;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            margin-top: 8px;
+        }
+
+        .restart-button:hover {
+            background-color: #E64A19;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="contenedor">
+        <header class="uno">
+            <h1>Memorama Material Design</h1>
+        </header>
+
+        <main class="dos">
+            <section class="memory-game">
+                <div class="game-card" data-framework="animal1">
+                    <img src="img/imagen1.jpg" alt="Elefante" class="front-face">
+                    <img src="img/3.jpg" alt="Parte trasera de la carta" class="back-face">
+                </div>
+                <div class="game-card" data-framework="animal2">
+                    <img src="img/animal2.png" alt="León" class="front-face">
+                    <img src="img/card_back.png" alt="Parte trasera de la carta" class="back-face">
+                </div>
+                <div class="game-card" data-framework="animal3">
+                    <img src="img/animal3.png" alt="Jirafa" class="front-face">
+                    <img src="img/card_back.png" alt="Parte trasera de la carta" class="back-face">
+                </div>
+                <div class="game-card" data-framework="animal4">
+                    <img src="img/animal4.png" alt="Cebra" class="front-face">
+                    <img src="img/card_back.png" alt="Parte trasera de la carta" class="back-face">
+                </div>
+                <div class="game-card" data-framework="animal1">
+                    <img src="img/imagen1.jpg" alt="Elefante" class="front-face">
+                    <img src="img/3.jpg" alt="Parte trasera de la carta" class="back-face">
+                </div>
+                <div class="game-card" data-framework="animal2">
+                    <img src="img/animal2.png" alt="León" class="front-face">
+                    <img src="img/card_back.png" alt="Parte trasera de la carta" class="back-face">
+                </div>
+                <div class="game-card" data-framework="animal3">
+                    <img src="img/animal3.png" alt="Jirafa" class="front-face">
+                    <img src="img/card_back.png" alt="Parte trasera de la carta" class="back-face">
+                </div>
+                <div class="game-card" data-framework="animal4">
+                    <img src="img/animal4.png" alt="Cebra" class="front-face">
+                    <img src="img/card_back.png" alt="Parte trasera de la carta" class="back-face">
+                </div>
+            </section>
+        </main>
+
+        <footer class="tres">
+            <p>&copy; 2025 Mi App. Todos los derechos reservados.</p>
+            <button class="restart-button">Reiniciar Juego</button>
+        </footer>
+    </div>
+
+    <script>
+        const cards = document.querySelectorAll('.game-card');
+        const restartButton = document.querySelector('.restart-button');
+
+        let hasFlippedCard = false;
+        let lockBoard = false;
+        let firstCard, secondCard;
+
+        function flipCard() {
+            if (lockBoard) return;
+            if (this === firstCard || this.classList.contains('matched')) return;
+
+            this.classList.add('flip');
+
+            if (!hasFlippedCard) {
+                hasFlippedCard = true;
+                firstCard = this;
+                return;
+            }
+
+            secondCard = this;
+            checkForMatch();
+        }
+
+        function checkForMatch() {
+            let isMatch = firstCard.dataset.framework === secondCard.dataset.framework;
+            isMatch ? disableCards() : unflipCards();
+        }
+
+        function disableCards() {
+            firstCard.removeEventListener('click', flipCard);
+            secondCard.removeEventListener('click', flipCard);
+            firstCard.classList.add('matched');
+            secondCard.classList.add('matched');
+            resetBoard();
+        }
+
+        function unflipCards() {
+            lockBoard = true;
+            setTimeout(() => {
+                firstCard.classList.remove('flip');
+                secondCard.classList.remove('flip');
+                resetBoard();
+            }, 1000);
+        }
+
+        function resetBoard() {
+            [hasFlippedCard, lockBoard] = [false, false];
+            [firstCard, secondCard] = [null, null];
+        }
+
+        function shuffleCards() {
+            cards.forEach(card => {
+                let randomPos = Math.floor(Math.random() * cards.length);
+                card.style.order = randomPos;
+            });
+        }
+
+        function restartGame() {
+            cards.forEach(card => {
+                card.classList.remove('flip', 'matched');
+                // Asegurarse de que el event listener se añada solo una vez por carta al inicio
+                if (!card.hasAttribute('data-listener-added')) { // Esta parte es de la versión anterior,
+                                                                 // no es estrictamente necesaria aquí
+                                                                 // ya que `addEventListener` no añade duplicados.
+                    card.addEventListener('click', flipCard);
+                    card.setAttribute('data-listener-added', 'true');
+                }
+                // Pero sí es importante asegurar que si el listener se quitó (disableCards), se vuelva a poner
+                // La línea `card.addEventListener('click', flipCard);` dentro del forEach en restartGame()
+                // ya se encarga de re-agregar si no estaba.
+            });
+            shuffleCards();
+            resetBoard();
+        }
+
+        // --- Inicialización del Juego ---
+        cards.forEach(card => {
+            card.addEventListener('click', flipCard);
+            // La marca `data-listener-added` es útil para evitar añadir múltiples listeners
+            // en escenarios más complejos, pero para este caso addEventListener
+            // ya maneja la deduplicación. La dejé para ser consistente.
+            card.setAttribute('data-listener-added', 'true');
+        });
+        restartButton.addEventListener('click', restartGame);
+
+        shuffleCards();
+    </script>
+</body>
+</html>
